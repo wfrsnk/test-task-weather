@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+</head>
+<body>
+    <h1>Weather</h1>
+    <h2 id="h2">...</h2>
+
+    <script>
+
+    const apiKey = '13ff7bfe5ddccd17d8b87e4e38d38bcb'
+    const lat = '59.8944';
+    const lon = '30.2642';
+
+    fetch('https://api.openweathermap.org/data/2.5/onecall?lat='+lat+'&lon='+lon+'&exclude=hourly,minutely&appid='+apiKey)
+        .then(response => response.json())
+        .then(data => {
+            let dailyData = data.daily;
+            let date = '';
+            let min = 1000;
+            for(let i=0; i<dailyData.length; i++) {
+                let difference = Math.abs(Math.abs((dailyData[i].temp.night-273.15)) - Math.abs((dailyData[i].feels_like.night-273.15)));
+                if (difference < min) {
+                    min = difference;
+                    date = convertTimestamp(dailyData[i].dt);
+                }               
+            }
+            document.getElementById('h2').innerHTML='Наименьшая разница между ощущаемой и фактической температурой ожидается '+ date +', она составит '+ min +'&#176'+'C';
+        });
+
+    function convertTimestamp(timestamp) {
+    let d = new Date(timestamp * 1000), // Convert the passed timestamp to milliseconds
+        yyyy = d.getFullYear(),
+        mm = ('0' + (d.getMonth() + 1)).slice(-2),  // Months are zero based. Add leading 0.
+        dd = ('0' + d.getDate()).slice(-2);        // Add leading 0.
+  
+    time = dd + '-' + mm + '-' + yyyy;
+    return time;
+    }
+
+    </script>
+</body>
+</html>
