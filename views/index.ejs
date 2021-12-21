@@ -9,7 +9,8 @@
 <body>
     <h1>Weather</h1>
     <h2 id="h2">...</h2>
-
+    <h1>Weather</h1>
+    <h2 id="sun">...</h2>
     <script>
 
     const apiKey = '13ff7bfe5ddccd17d8b87e4e38d38bcb'
@@ -20,16 +21,30 @@
         .then(response => response.json())
         .then(data => {
             let dailyData = data.daily;
-            let date = '';
-            let min = 1000;
+            let dateTemp = '';
+            let minTemp = 1000;
+            let dateSun = '';
+            let maxSun = 0;
+            console.log('dailyData: ', dailyData);
             for(let i=0; i<dailyData.length; i++) {
-                let difference = Math.abs(Math.abs((dailyData[i].temp.night-273.15)) - Math.abs((dailyData[i].feels_like.night-273.15)));
-                if (difference < min) {
-                    min = difference;
-                    date = convertTimestamp(dailyData[i].dt);
-                }               
+                //task 3a-1
+                let differenceTemp = Math.abs(Math.abs((dailyData[i].temp.night-273.15)) - Math.abs((dailyData[i].feels_like.night-273.15)));
+                if (differenceTemp < minTemp) {
+                    minTemp = differenceTemp;
+                    dateTemp = convertTimestamp(dailyData[i].dt);
+                }   
+                //task 3a-2
+                if(i<5){
+                    let differenceSun = dailyData[i].sunset - dailyData[i].sunrise;
+            
+                    if(differenceSun > maxSun) {
+                        maxSun = differenceSun;
+                        dateSun = convertTimestamp(dailyData[i].dt);  
+                    }
+                }   
             }
-            document.getElementById('h2').innerHTML='Наименьшая разница между ощущаемой и фактической температурой ожидается '+ date +', она составит '+ min +'&#176'+'C';
+            document.getElementById('h2').innerHTML='Наименьшая разница между ощущаемой и фактической температурой ожидается '+ dateTemp +', она составит '+ minTemp +'&#176'+'C';
+            document.getElementById('sun').innerHTML='Наибольшая продолжительность светового дня ожидается '+ dateSun;
         });
 
     function convertTimestamp(timestamp) {
