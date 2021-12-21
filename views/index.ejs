@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather</title>
+    <title>TestTask</title>
 </head>
 <body>
-    <h1>Weather</h1>
-    <h2 id="h2">...</h2>
-    <h1>Weather</h1>
+    <h1>3a-1. Accurate forecast</h1>
+    <h2 id="tem">...</h2>
+    <h1>3a-2. Longest day</h1>
     <h2 id="sun">...</h2>
+    <h1>3b. Converter</h1>
+    <h2 id="conv">Cтоимость 1 норвежской кроны = ... венгерского форинта</h2>
     <script>
 
     const apiKey = '13ff7bfe5ddccd17d8b87e4e38d38bcb'
@@ -25,7 +27,7 @@
             let minTemp = 1000;
             let dateSun = '';
             let maxSun = 0;
-            console.log('dailyData: ', dailyData);
+
             for(let i=0; i<dailyData.length; i++) {
                 //task 3a-1
                 let differenceTemp = Math.abs(Math.abs((dailyData[i].temp.night-273.15)) - Math.abs((dailyData[i].feels_like.night-273.15)));
@@ -36,27 +38,46 @@
                 //task 3a-2
                 if(i<5){
                     let differenceSun = dailyData[i].sunset - dailyData[i].sunrise;
-            
                     if(differenceSun > maxSun) {
                         maxSun = differenceSun;
                         dateSun = convertTimestamp(dailyData[i].dt);  
                     }
                 }   
             }
-            document.getElementById('h2').innerHTML='Наименьшая разница между ощущаемой и фактической температурой ожидается '+ dateTemp +', она составит '+ minTemp +'&#176'+'C';
+            document.getElementById('tem').innerHTML='Наименьшая разница между ощущаемой и фактической температурой ожидается '+ dateTemp +', она составит '+ minTemp +'&#176'+'C';
             document.getElementById('sun').innerHTML='Наибольшая продолжительность светового дня ожидается '+ dateSun;
         });
 
     function convertTimestamp(timestamp) {
-    let d = new Date(timestamp * 1000), // Convert the passed timestamp to milliseconds
+    let d = new Date(timestamp * 1000), 
         yyyy = d.getFullYear(),
-        mm = ('0' + (d.getMonth() + 1)).slice(-2),  // Months are zero based. Add leading 0.
-        dd = ('0' + d.getDate()).slice(-2);        // Add leading 0.
+        mm = ('0' + (d.getMonth() + 1)).slice(-2),  
+        dd = ('0' + d.getDate()).slice(-2);        
   
     time = dd + '-' + mm + '-' + yyyy;
     return time;
     }
 
+    // TASK 3b
+
+    const charCodeVen = 'HUF';
+    const charCodeNorv = 'NOK';
+
+    let valVen = 0;
+    let valNorv = 0;
+
+    fetch('/api/data')
+        .then(response => response.json())
+        .then(data => {
+            let dataSetCourses = data.ValCurs.Valute;
+            for(let i=0; i<dataSetCourses.length; i++){
+                if(dataSetCourses[i].CharCode._text === charCodeVen)
+                    valVen = parseFloat(dataSetCourses[i].Value._text.replace(',','.')) / parseFloat(dataSetCourses[i].Nominal._text.replace(',','.'));
+                if(dataSetCourses[i].CharCode._text === charCodeNorv)
+                    valNorv = parseFloat(dataSetCourses[i].Value._text.replace(',','.')) / parseFloat(dataSetCourses[i].Nominal._text.replace(',','.')); 
+            }
+            document.getElementById('conv').innerHTML='Cтоимость 1 норвежской кроны = ' + valVen/valNorv + ' венгерского форинта';
+        })
     </script>
 </body>
 </html>
